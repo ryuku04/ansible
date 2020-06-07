@@ -1,0 +1,62 @@
+---
+- hosts: web001
+  become: yes
+  tasks:
+      - name: replace selinux
+        replace:
+          path: /etc/selinux/config
+          regexp: 'SELINUX=([a-zA-z]+)$'
+          replace: "SELINUX=disabled"
+
+      - name: install module
+        yum:
+          name: "{{packages}}"
+          state: latest
+        vars:
+          packages:
+            - ntp
+            - httpd
+            - php
+            - php-mbstring
+            - php-mysql
+            - php-gd
+            - mariadb
+            - wget
+
+      - name: install wordpress
+        unarchive:
+          src: /etc/ansible/templates/wordpress-5.0-ja.tar.gz
+          dest: /var/www/html/
+          remote_src: no
+
+      - file: 
+          path: /var/www/html/wordpress/
+          state: directory
+          mode: 0755
+          owner: apache
+          group: apache
+          recurse: yes
+
+      - firewalld: 
+          zone: public
+          permanent: true
+          service: http
+          state: enabled
+          immediate: true
+
+      - name: systemd ntpd
+        systemd: 
+          name: ntpd
+          state: started
+          enabled: yes
+
+      - name: systemd httpd
+        systemd: 
+          name: httpd
+          state: started
+          enabled: yes
+
+      - name: reboot
+        reboot:
+
+...

@@ -1,0 +1,12 @@
+---
+- hosts: test-local
+  connection: local
+  tasks: 
+      - name: install ntp
+        yum: name=ntp state=latest
+      - name: run ntp
+        service: 
+            name: ntpd
+            state: started
+            enabled: true
+...

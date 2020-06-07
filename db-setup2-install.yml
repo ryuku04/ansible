@@ -1,0 +1,50 @@
+---
+- hosts: db001
+  become: yes
+  tasks:
+      - name: install module
+        yum:
+          name: "{{packages}}"
+          state: latest
+        vars:
+          packages:
+            - ntp
+            - MySQL-python
+            - mariadb-server
+
+      - firewalld: 
+          zone: public
+          permanent: true
+          service: mysql
+          state: enabled
+          immediate: true
+
+      - name: systemd ntpd
+        systemd: 
+          name: ntpd
+          state: started
+          enabled: yes
+
+      - name: systemd mariadb
+        systemd: 
+          name: mariadb
+          state: started
+          enabled: yes
+
+      - name: create db table
+        mysql_db:
+          name: wordpress
+          state: present
+
+      - name: add db user
+        mysql_user:
+          name: wpuser
+          host: 172.16.1.110
+          password: wppassword
+          priv: 'wordpress.*:ALL'
+          state: present
+
+      - name: reboot
+        reboot:
+
+...

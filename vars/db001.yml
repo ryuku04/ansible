@@ -1,0 +1,3 @@
+newhostname: db001
+newipaddress: 172.16.1.120
+newnic: eth1

@@ -1,0 +1,3 @@
+newhostname: web001
+newipaddress: 172.16.1.110
+newnic: eth1
